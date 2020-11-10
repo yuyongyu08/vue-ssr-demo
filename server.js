@@ -1,18 +1,12 @@
-const Vue = require('vue');
 const render = require('vue-server-renderer').createRenderer({
     template: require('fs').readFileSync('./index.template.html', 'utf-8')
 });
 const server = require('express')();
+const createApp = require('./app')
 
 server.get('*', (req, res) => {
-    const app = new Vue({
-        data: {
-            url: req.url
-        },
-        template: `<div>The visited URL is: {{ url }}</div>`
-    });
-
     const context = {
+        url: req.url,
         title: 'Hello Vue SSR',
         metas: `
             <meta name="keyword" content="vue,ssr">
@@ -20,7 +14,7 @@ server.get('*', (req, res) => {
         `,
     }
 
-    render.renderToString(app, context).then(html => {
+    render.renderToString(createApp(context), context).then(html => {
         res.end(html)
     }).catch(err => {
         console.log(err);
