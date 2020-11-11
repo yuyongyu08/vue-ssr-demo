@@ -2,7 +2,7 @@ const render = require('vue-server-renderer').createRenderer({
     template: require('fs').readFileSync('./index.template.html', 'utf-8')
 });
 const server = require('express')();
-const createApp = require('./app')
+const entry = require('./entry-server')
 
 server.get('*', (req, res) => {
     const context = {
@@ -14,7 +14,7 @@ server.get('*', (req, res) => {
         `,
     }
 
-    render.renderToString(createApp(context), context).then(html => {
+    render.renderToString(entry()).then(html => {
         res.end(html)
     }).catch(err => {
         console.log(err);
