@@ -2,24 +2,25 @@ const render = require('vue-server-renderer').createRenderer({
     template: require('fs').readFileSync('./index.template.html', 'utf-8')
 });
 const server = require('express')();
-const entry = require('./entry-server')
+const createApp = require('./entry-server')
 
 server.get('*', (req, res) => {
     const context = {
-        url: req.url,
-        title: 'Hello Vue SSR',
-        metas: `
-            <meta name="keyword" content="vue,ssr">
-            <meta name="description" content="vue srr demo">
-        `,
+        url: req.url
     }
 
-    render.renderToString(entry()).then(html => {
-        res.end(html)
-    }).catch(err => {
-        console.log(err);
-        res.status(500).end('Internal Server Error')
-        return
+    createApp(context).then(app => {
+        render.renderToString(app).then((err, html) => {
+            if (err) {
+                if (err.code === 404) {
+                    res.status(404).end('Page not found')
+                } else {
+                    res.status(500).end('Internal Server Error')
+                }
+            } else {
+                res.end(html)
+            }
+        })
     })
 })
 
